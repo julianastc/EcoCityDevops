@@ -23,8 +23,8 @@ Etapas do Pipeline:
 1. Checkout e Setup: Baixa o código fonte e configura o ambiente .NET 8.
 2. Build: Restaura dependências e compila o projeto C# em modo Release para garantir que não há erros de sintaxe. 
 3. Testes Automatizados: Executa o projeto EcoCity.Tests (xUnit) para validar as regras de negócio. Se um teste falhar, o pipeline quebra. 
-4. Containerização (Docker Build): Se os testes passarem, constrói a imagem Docker da API a partir do Dockerfile. 
-5. Deploy Simulado: Executa os passos simulados de entrega contínua nos ambientes de Staging (Homologação) e Produção.
+4. Deploy Staging: Utilizando o GitHub Environments, após o sucesso do build e dos testes, o pipeline realiza a construção da imagem Docker e o deploy de forma totalmente automática no ambiente de Homologação.
+5. Deploy Produção: Também gerido pelo GitHub Environments, esta etapa possui uma regra de proteção (Required Reviewers). O deploy é pausado e requer aprovação manual humana antes de prosseguir, garantindo segurança na entrega contínua.
 
 ## Containerização
 A estratégia adotada para a API utiliza um processo de Multi-stage Build para manter a imagem final o mais leve e segura possível.
@@ -71,7 +71,7 @@ A orquestração com o banco de dados é feita via Docker Compose, criando uma r
 
 - Containerização: Docker e Docker Compose
 
-- Integração e Entrega Contínua (CI/CD): GitHub Actions
+- Integração e Entrega Contínua (CI/CD): GitHub Actions e GitHub Environments
 
 - IDE: JetBrains Rider
 
