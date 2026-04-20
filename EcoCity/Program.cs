@@ -11,7 +11,6 @@ app.MapGet("/api/energia/analise", (int consumo, int limite) =>
 
 app.Run();
 
-// Classe estática com a regra de negócio para o teste
 public static class EcoCityRegras
 {
     public static string AnalisarConsumo(int consumoKwh, int limiteKwh)
