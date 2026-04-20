@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar o código (Checkout)
+      - name: Baixar o codigo
         uses: actions/checkout@v3
 
       - name: Configurar o .NET 8
@@ -20,25 +20,25 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restaurar dependências
+      - name: Restaurar dependencias
         run: dotnet restore
 
-      - name: Compilar o projeto (Build)
+      - name: Compilar o projeto
         run: dotnet build --no-restore --configuration Release
 
-      - name: Rodar Testes Unitários (Test)
+      - name: Rodar Testes Unitarios
         run: dotnet test --no-build --configuration Release --verbosity normal
-  
+
   deploy-staging:
     name: Deploy Staging
-    needs: build-and-test 
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment:
       name: Staging
-      url: https://github.com 
-    
+      url: https://github.com
+
     steps:
-      - name: Baixar o código
+      - name: Baixar o codigo
         uses: actions/checkout@v3
 
       - name: Build da Imagem Docker
@@ -46,21 +46,21 @@ jobs:
 
       - name: Simular entrega no servidor
         run: echo "Imagem gerada e implantada no ambiente de Staging com sucesso!"
-    
-    deploy-producao:
-      name: Deploy Produção
-      needs: deploy-staging 
-      runs-on: ubuntu-latest
-      environment:
-        name: Produção
-        url: https://github.com
-      
-      steps:
-        - name: Baixar o código
-          uses: actions/checkout@v3
 
-        - name: Build da Imagem Docker (Produção)
-          run: docker build -t ecocity-api:latest -f EcoCity/Dockerfile ./EcoCity
+  deploy-producao:
+    name: Deploy Producao
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: Producao
+      url: https://github.com
 
-        - name: Simular entrega no servidor
-          run: echo "Imagem de Produção gerada e implantada com sucesso!"
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v3
+
+      - name: Build da Imagem Docker
+        run: docker build -t ecocity-api:latest -f EcoCity/Dockerfile ./EcoCity
+
+      - name: Simular entrega no servidor
+        run: echo "Imagem de Producao gerada e implantada com sucesso!"
