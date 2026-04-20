@@ -1,6 +1,8 @@
 # Projeto - Cidades ESGInteligentes
 
-O **EcoCity 360** é uma plataforma focada em cidades inteligentes e práticas ESG (Environmental, Social, and Governance). Esta API gere dados críticos em áreas como consumo de energia, gestão de resíduos e indicadores sociais e de governança.
+O **EcoCity 360** é uma plataforma focada em cidades inteligentes e práticas ESG (Environmental, Social, and Governance). Esta API gere dados críticos em áreas como consumo de energia, gestão de resíduos, indicadores sociais, governança ambiental e monitorização em tempo real via sensores IoT.
+
+A arquitetura foi desenvolvida num padrão profissional utilizando **Controllers**, separando as regras de negócio em *Services* e garantindo alta testabilidade e manutenção.
 
 ## Como executar localmente com Docker
 
@@ -57,17 +59,29 @@ A orquestração com o banco de dados é feita via Docker Compose, criando uma r
 ## Prints do funcionamento
 
 1. Execução Local e Base de Dados (Docker Compose)
+   ![](img/docker.png)
+   ![](img/navegador.png)
 
 2. Execução do Pipeline CI/CD (GitHub Actions)
+   ![](img/build-loading.png)
+   ![](img/staging-load.png)
+   ![](img/request.png)
+   ![](img/request-ok.png)
+   ![](img/producao-loading.png)
+   ![](img/ok.png)
 
 3. Deploy em Staging e Produção
+   ![](img/staging-ok.png)
+   ![](img/producao-ok.png)
+
+
 
 ## Tecnologias utilizadas
-- Linguagem: C# 12 / .NET 8 (Minimal APIs)
+- Linguagem: C# 12 / .NET 8 (Arquitetura de Controllers)
 
 - Testes Automatizados: xUnit
 
-- Base de Dados: MongoDB (NoSQL)
+- Base de Dados: MongoDB (NoSQL) + Driver Oficial C#
 
 - Containerização: Docker e Docker Compose
 
