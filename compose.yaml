@@ -1,0 +1,35 @@
+﻿version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./EcoCity
+      dockerfile: Dockerfile
+    container_name: ecocity_api
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__MongoDb=mongodb://mongodb-ecocity:27017
+      - DatabaseName=ecocity360
+    depends_on:
+      - mongodb-ecocity
+    networks:
+      - ecocity-network
+
+  mongodb-ecocity:
+    image: mongo:latest
+    container_name: ecocity_mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - ecocity-network
+
+networks:
+  ecocity-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

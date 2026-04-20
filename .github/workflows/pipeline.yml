@@ -1,0 +1,49 @@
+name: EcoCity 360 - CI/CD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    name: Build e Testes Automatizados
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Baixar o código (Checkout)
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Configurar o .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Restaurar dependências
+        run: dotnet restore
+
+      - name: 🛠️ Compilar o projeto (Build)
+        run: dotnet build --no-restore --configuration Release
+
+      - name: 🧪 Rodar Testes Unitários (Test)
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+  docker-build:
+    name: Build da Imagem Docker e Deploy
+    needs: build-and-test # Só roda se os testes passarem
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Baixar o código
+        uses: actions/checkout@v3
+
+      - name: 🐳 Build da Imagem Docker
+        # Como definimos no docker-compose, construímos apontando para o seu Dockerfile
+        run: docker build -t ecocity-api:latest -f EcoCity/Dockerfile ./EcoCity
+
+      - name: 🚀 Simular Deploy em Staging
+        run: echo "Deploy realizado com sucesso no ambiente de Homologação!"
+
+      - name: ✅ Simular Deploy em Produção
+        run: echo "Deploy realizado com sucesso em Produção!"
