@@ -1,23 +1,29 @@
-using EphemeralMongo;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Testcontainers.MongoDb;
 
 namespace EcoCity.Tests.Infra;
 
-public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IDisposable
+public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly IMongoRunner _runner;
-    public string DatabaseName { get; } = "ecocity_tests";
+    private readonly MongoDbContainer _mongoContainer = new MongoDbBuilder()
+        .WithImage("mongo:7.0")
+        .Build();
 
-    public EcoCityWebApplicationFactory()
+    public string DatabaseName { get; } = "ecocity_tests";
+    private string ConnectionString => _mongoContainer.GetConnectionString();
+
+    public async Task InitializeAsync()
     {
-        _runner = MongoRunner.Run(new MongoRunnerOptions
-        {
-            UseSingleNodeReplicaSet = false,
-            KillMongoProcessesWhenCurrentProcessExits = true
-        });
+        await _mongoContainer.StartAsync();
+    }
+
+    public new async Task DisposeAsync()
+    {
+        await _mongoContainer.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -32,7 +38,7 @@ public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IDis
             var dbDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMongoDatabase));
             if (dbDescriptor != null) services.Remove(dbDescriptor);
 
-            services.AddSingleton<IMongoClient>(new MongoClient(_runner.ConnectionString));
+            services.AddSingleton<IMongoClient>(new MongoClient(ConnectionString));
             services.AddScoped(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();
@@ -43,16 +49,7 @@ public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IDis
 
     public void ResetDatabase()
     {
-        var client = new MongoClient(_runner.ConnectionString);
+        var client = new MongoClient(ConnectionString);
         client.DropDatabase(DatabaseName);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _runner.Dispose();
-        }
-        base.Dispose(disposing);
     }
 }
