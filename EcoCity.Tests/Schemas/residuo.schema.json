@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResiduoColeta",
+  "type": "object",
+  "required": ["bairro", "tipo", "volumeKg", "limiteKg", "coletaStatus"],
+  "properties": {
+    "id":           { "type": ["string", "null"] },
+    "bairro":       { "type": "string" },
+    "tipo":         { "type": "string" },
+    "volumeKg":     { "type": "integer" },
+    "limiteKg":     { "type": "integer" },
+    "coletaStatus": { "type": "string", "enum": ["Normal", "Agendar coleta", "Urgente"] }
+  }
+}

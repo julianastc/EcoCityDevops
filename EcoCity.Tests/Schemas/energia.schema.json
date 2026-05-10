@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EnergiaConsumo",
+  "type": "object",
+  "required": ["local", "consumoKwh", "limiteKwh", "data", "status"],
+  "properties": {
+    "id":          { "type": ["string", "null"] },
+    "local":       { "type": "string" },
+    "consumoKwh":  { "type": "integer" },
+    "limiteKwh":   { "type": "integer" },
+    "data":        { "type": "string" },
+    "status":      { "type": "string", "enum": ["Normal", "Alerta", "Acima do limite"] }
+  }
+}

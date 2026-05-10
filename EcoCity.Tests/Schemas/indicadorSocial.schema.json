@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IndicadorSocial",
+  "type": "object",
+  "required": ["empresa", "diversidadeGenero", "inclusaoPcd", "treinamentos", "statusSocial"],
+  "properties": {
+    "id":                { "type": ["string", "null"] },
+    "empresa":           { "type": "string" },
+    "diversidadeGenero": { "type": "string" },
+    "inclusaoPcd":       { "type": "string" },
+    "treinamentos":      { "type": "integer" },
+    "statusSocial":      { "type": "string", "enum": ["Excelente", "Adequado", "Abaixo da meta"] }
+  }
+}

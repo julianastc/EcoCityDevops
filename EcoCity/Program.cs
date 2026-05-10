@@ -25,3 +25,5 @@ app.MapControllers();
 app.MapGet("/api/status", () => new { Status = "EcoCity 360 API Rodando com Controllers!", Versao = "2.0" });
 
 app.Run();
+
+public partial class Program { }
