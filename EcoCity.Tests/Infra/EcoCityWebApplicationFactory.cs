@@ -8,23 +8,23 @@ namespace EcoCity.Tests.Infra;
 
 public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly MongoDbContainer _mongoContainer = new MongoDbBuilder()
-        .WithImage("mongo:7.0")
-        .Build();
+    private static readonly Lazy<MongoDbContainer> SharedContainer = new(() =>
+    {
+        var container = new MongoDbBuilder().WithImage("mongo:7.0").Build();
+        container.StartAsync().GetAwaiter().GetResult();
+        return container;
+    });
 
     public string DatabaseName { get; } = "ecocity_tests";
-    private string ConnectionString => _mongoContainer.GetConnectionString();
+    private string ConnectionString => SharedContainer.Value.GetConnectionString();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        await _mongoContainer.StartAsync();
+        _ = SharedContainer.Value;
+        return Task.CompletedTask;
     }
 
-    public new async Task DisposeAsync()
-    {
-        await _mongoContainer.DisposeAsync();
-        await base.DisposeAsync();
-    }
+    public new Task DisposeAsync() => Task.CompletedTask;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
