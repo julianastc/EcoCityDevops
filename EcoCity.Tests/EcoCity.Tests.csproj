@@ -14,7 +14,6 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
         <PackageReference Include="MongoDB.Driver" Version="3.7.1" />
-        <PackageReference Include="Testcontainers.MongoDb" Version="3.10.0" />
         <PackageReference Include="NJsonSchema" Version="11.0.2" />
         <PackageReference Include="Reqnroll.xUnit" Version="2.1.0" />
         <PackageReference Include="xunit" Version="2.5.3"/>
