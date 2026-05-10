@@ -1,4 +1,4 @@
-using Mongo2Go;
+using EphemeralMongo;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,12 +8,16 @@ namespace EcoCity.Tests.Infra;
 
 public class EcoCityWebApplicationFactory : WebApplicationFactory<Program>, IDisposable
 {
-    private readonly MongoDbRunner _runner;
+    private readonly IMongoRunner _runner;
     public string DatabaseName { get; } = "ecocity_tests";
 
     public EcoCityWebApplicationFactory()
     {
-        _runner = MongoDbRunner.Start(singleNodeReplSet: false);
+        _runner = MongoRunner.Run(new MongoRunnerOptions
+        {
+            UseSingleNodeReplicaSet = false,
+            KillMongoProcessesWhenCurrentProcessExits = true
+        });
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
