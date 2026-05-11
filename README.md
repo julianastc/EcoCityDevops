@@ -14,65 +14,68 @@ A aplicação e a base de dados foram preparadas para serem executadas num ambie
 3. Execute o comando de orquestração:
    ```bash
    docker compose up -d --build
-4. O Docker irá baixar as imagens, compilar a API, subir o MongoDB e executar automaticamente o script init-mongo.js para criar as 5 collections (energia, resíduos, indicadores, governança e sensores).
-5. Após os contentores estarem a correr, acesse no navegador: http://localhost:8080/api/status.
+4. Execute os testes para validar o ambiente: 
+   ```bash 
+    dotnet test
 
-## Pipeline CI/CD
-A automação do ciclo de vida da aplicação foi configurada utilizando o GitHub Actions. O pipeline é ativado automaticamente em eventos de push ou pull request para a branch main.
+## Estrutura de Testes
+### 1. Testes de Comportamento (BDD)
+Utilizamos Gherkin para descrever cenários de negócio em linguagem natural. Os arquivos `.feature` estão em `EcoCity.Tests/Features/`.
 
-Etapas do Pipeline:
+**Cenários Principais:**
+- **Energia:** Monitoramento de faixas de consumo.
+- **Resíduos:** Gestão de urgência na coleta por bairro.
+- **Sensores IoT:** Alertas baseados em telemetria em tempo real.
 
-1. Checkout e Setup: Baixa o código fonte e configura o ambiente .NET 8.
-2. Build: Restaura dependências e compila o projeto C# em modo Release para garantir que não há erros de sintaxe. 
-3. Testes Automatizados: Executa o projeto EcoCity.Tests (xUnit) para validar as regras de negócio. Se um teste falhar, o pipeline quebra. 
-4. Deploy Staging: Utilizando o GitHub Environments, após o sucesso do build e dos testes, o pipeline realiza a construção da imagem Docker e o deploy de forma totalmente automática no ambiente de Homologação.
-5. Deploy Produção: Também gerido pelo GitHub Environments, esta etapa possui uma regra de proteção (Required Reviewers). O deploy é pausado e requer aprovação manual humana antes de prosseguir, garantindo segurança na entrega contínua.
+### 2. Testes de Contrato (JSON Schema)
+Garantimos a integridade da API validando cada resposta contra esquemas JSON predefinidos em `EcoCity.Tests/Schemas/`. Isso impede que alterações no código quebrem integrações externas.
 
-## Containerização
-A estratégia adotada para a API utiliza um processo de Multi-stage Build para manter a imagem final o mais leve e segura possível.
-
-- Fase 1 (Build): Utiliza a imagem pesada do SDK do .NET (mcr.microsoft.com/dotnet/sdk:8.0) para compilar o código.
-
-- Fase 2 (Runtime): Utiliza apenas a imagem de execução (mcr.microsoft.com/dotnet/aspnet:8.0), descartando os ficheiros de compilação.
-
-Conteúdo do Dockerfile:
-
-1. Etapa de Build
-FROM [mcr.microsoft.com/dotnet/sdk:8.0](https://mcr.microsoft.com/dotnet/sdk:8.0) AS build
-WORKDIR /src
-COPY ["EcoCity.csproj", "./"]
-RUN dotnet restore "EcoCity.csproj"
-COPY . .
-WORKDIR "/src/"
-RUN dotnet publish "EcoCity.csproj" -c Release -o /app/publish
-
-2. Etapa de Runtime
-FROM [mcr.microsoft.com/dotnet/aspnet:8.0](https://mcr.microsoft.com/dotnet/aspnet:8.0) AS final
-WORKDIR /app
-COPY --from=build /app/publish .
-ENV ASPNETCORE_HTTP_PORTS=8080
-EXPOSE 8080
-ENTRYPOINT ["dotnet", "EcoCity.dll"]
-
-A orquestração com o banco de dados é feita via Docker Compose, criando uma rede interna (ecocity-network) para comunicação segura entre a API e o MongoDB.
+### 3. Cenário de Listagem 
+Para a funcionalidade de consulta de resíduos, implementamos a seguinte validação:
+- **Ação:** O teste executa uma requisição HTTP do tipo **GET** para o endpoint `/api/Residuos`.
+- **Validação de Status e Dados:** Verifica se a API retorna o código **200 OK** e se o corpo da resposta é um **Array JSON**. Internamente, o `ResiduosController` realiza uma busca assíncrona no **MongoDB** para retornar todos os registros.
 
 ## Prints do funcionamento
 
 1. Execução Local e Base de Dados (Docker Compose)
    ![](img/docker.png)
-   ![](img/navegador.png)
 
 2. Execução do Pipeline CI/CD (GitHub Actions)
-   ![](img/build-loading.png)
-   ![](img/staging-load.png)
-   ![](img/request.png)
-   ![](img/request-ok.png)
-   ![](img/producao-loading.png)
-   ![](img/ok.png)
+   ![](img/cicd.png)
 
-3. Deploy em Staging e Produção
-   ![](img/staging-ok.png)
-   ![](img/producao-ok.png)
+3. Configurações MongoDb
+   ![](img/dbconfig.png)
+4. Configurações pipeline
+   ![](img/pipeline.png)
+   
+5. Cenários Ghenkin
+   ![](img/energiafeature.png)
+   ![](img/residuoesfeature.png)
+   ![](img/sensoresiotfeature.png)
+
+6. Steps BDD
+   ![](img/energiabdd.png)
+   ![](img/residuosbdd.png)
+   ![](img/sensoresbdd.png)
+   ![](img/acoesbdd.png)
+   ![](img/acoesbdd2.png)
+
+7. Validação de status code
+   ![](img/testestatus1.png)
+   ![](img/testestatus2.png)
+   ![](img/testesstatus3.png)
+
+
+8. Validação de JSON
+   ![](img/testejson1.png)
+   ![](img/testejson2.png)
+   ![](img/testesjson3.png)
+
+
+9. Testes de contrato utilizando JSON Schema
+   ![](img/schema.png)
+
+
 
 
 
@@ -90,3 +93,5 @@ A orquestração com o banco de dados é feita via Docker Compose, criando uma r
 - IDE: JetBrains Rider
 
 - Controle de Versão: Git e GitHub
+- BDD: Reqnroll (Gherkin)
+- Validação de Contrato: NJsonSchema
